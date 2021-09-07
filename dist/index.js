@@ -2279,10 +2279,10 @@ var script = {
         return element.remove();
       });
     },
-    onMove: function onMove(pageX) {
-      if (pageX - this.movementStart >= this.speedFactor) {
-        var itemsSkippedRight = Math.floor((pageX - this.movementStart) / this.speedFactor) || 1;
-        this.movementStart = pageX;
+    onMove: function onMove(pageDirection) {
+      if (pageDirection - this.movementStart >= this.speedFactor) {
+        var itemsSkippedRight = Math.floor((pageDirection - this.movementStart) / this.speedFactor) || 1;
+        this.movementStart = pageDirection;
 
         if (this.spinReverse) {
           this.moveActiveIndexDown(itemsSkippedRight);
@@ -2291,9 +2291,9 @@ var script = {
         }
 
         this.redraw();
-      } else if (this.movementStart - pageX >= this.speedFactor) {
-        var itemsSkippedLeft = Math.floor((this.movementStart - pageX) / this.speedFactor) || 1;
-        this.movementStart = pageX;
+      } else if (this.movementStart - pageDirection >= this.speedFactor) {
+        var itemsSkippedLeft = Math.floor((this.movementStart - pageDirection) / this.speedFactor) || 1;
+        this.movementStart = pageDirection;
 
         if (this.spinReverse) {
           this.moveActiveIndexUp(itemsSkippedLeft);
@@ -2306,7 +2306,13 @@ var script = {
     },
     startMoving: function startMoving(evt) {
       this.movement = true;
-      this.movementStart = evt.pageX;
+
+      if (this.draggingDirection == 'horizontal') {
+        this.movementStart = evt.pageX;
+      } else {
+        this.movementStart = evt.pageY;
+      }
+
       this.$refs.viewport.style.cursor = 'grabbing';
     },
     doMoving: function doMoving(evt) {
@@ -2374,10 +2380,18 @@ var script = {
       this.$refs.viewport.style.cursor = 'grab';
     },
     touchStart: function touchStart(evt) {
-      this.movementStart = evt.touches[0].clientX;
+      if (this.draggingDirection == 'horizontal') {
+        this.movementStart = evt.touches[0].clientX;
+      } else {
+        this.movementStart = evt.touches[0].clientY;
+      }
     },
     touchMove: function touchMove(evt) {
-      this.onMove(evt.touches[0].clientX);
+      if (this.draggingDirection == 'horizontal') {
+        this.onMove(evt.touches[0].clientX);
+      } else {
+        this.onMove(evt.touches[0].clientY);
+      }
     },
     touchEnd: function touchEnd() {
       this.movementStart = 0;
@@ -2673,7 +2687,7 @@ var __vue_render__ = function __vue_render__() {
       arg: "pinchin"
     }],
     ref: "imageContainer",
-    staticClass: "v360-image-container thisIsMine"
+    staticClass: "v360-image-container"
   }), _vm._v(" "), _vm.boxShadow ? _c('div', {
     directives: [{
       name: "hammer",
